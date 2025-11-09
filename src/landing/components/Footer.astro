@@ -1,0 +1,63 @@
+---
+const columns = [
+  {
+    title: "Product",
+    links: [
+      { label: "Features", href: "#features" },
+      { label: "How it works", href: "#transparency" },
+      { label: "Install", href: "#install" }
+    ]
+  },
+  {
+    title: "Learn",
+    links: [
+      { label: "Privacy commitments", href: "#privacy" },
+      { label: "Open source", href: "#community" },
+      { label: "Transparency tab", href: "#transparency" }
+    ]
+  },
+  {
+    title: "Docs",
+    links: [
+      { label: "Overview", href: "#overview" },
+      { label: "Architecture", href: "#features" },
+      { label: "Changelog", href: "#install" }
+    ]
+  },
+  {
+    title: "Connect",
+    links: [
+      { label: "Contact", href: "mailto:hello@sitesense.dev" },
+      { label: "GitHub", href: "https://github.com/", external: true },
+      { label: "Privacy community", href: "https://privacy.dev/", external: true }
+    ]
+  }
+];
+---
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      {columns.map((column) => (
+        <div class="footer-column">
+          <h3>{column.title}</h3>
+          <ul>
+            {column.links.map((link) => (
+              <li>
+                <a
+                  href={link.href}
+                  target={link.external ? "_blank" : undefined}
+                  rel={link.external ? "noopener noreferrer" : undefined}
+                >
+                  {link.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+    <div class="footer-bottom">© <span data-year>2025</span> SiteSense. Brutally honest about privacy.</div>
+  </div>
+</footer>
+

@@ -1,0 +1,17 @@
+{
+  "name": "sitesense-landing",
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "astro": "^4.10.0"
+  },
+  "devDependencies": {
+    "@astrojs/vercel": "^7.5.2"
+  }
+}
+

@@ -1,0 +1,41 @@
+---
+const features = [
+  {
+    label: "Website Analysis",
+    labelClass: "highlight-green",
+    title: "LLM-backed clarity",
+    body:
+      "We extract privacy policies locally, send anonymized text to an external LLM, and render a structured response that you can audit line by line."
+  },
+  {
+    label: "Extension Scan",
+    labelClass: "highlight-green",
+    title: "Deterministic scoring",
+    body:
+      "A transparent rule-based engine evaluates extension permissions and explains the risk level for each capability."
+  },
+  {
+    label: "No Lock-in",
+    labelClass: "highlight-red",
+    title: "Pure transparency",
+    body:
+      "Every prompt, response, and transformation is open-source. There is nothing hidden behind APIs, servers, or telemetry."
+  }
+];
+---
+
+<section id="features" class="section">
+  <div class="section-inner">
+    <h2>What SiteSense Delivers</h2>
+    <div class="features-grid">
+      {features.map((feature) => (
+        <article class="feature-card">
+          <span class={`label ${feature.labelClass}`}>{feature.label}</span>
+          <h3>{feature.title}</h3>
+          <p>{feature.body}</p>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>
+

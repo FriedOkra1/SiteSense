@@ -1,0 +1,28 @@
+---
+import "../styles/global.css";
+import "../landing/styles/page.css";
+---
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SiteSense — Brutally Transparent Privacy Insights</title>
+    <meta
+      name="description"
+      content="SiteSense evaluates website privacy policies and extension permissions with transparent, explainable scores."
+    />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body>
+    <slot />
+    <script>
+      const year = document.querySelector("[data-year]");
+      if (year) {
+        year.textContent = new Date().getFullYear().toString();
+      }
+    </script>
+  </body>
+</html>
+

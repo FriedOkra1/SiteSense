@@ -1,0 +1,46 @@
+---
+const steps = [
+  {
+    number: "01",
+    title: "Detect & Extract",
+    description:
+      "SiteSense detects privacy content on the page, cleans it locally, and strips identifiers before continuing.",
+    code: "Input: sanitized policy text (no cookies, no referrer)"
+  },
+  {
+    number: "02",
+    title: "LLM Interpretation",
+    description:
+      "The anonymized text is sent to our open prompt. The LLM returns structured findings, risks, and rationale you can inspect in full.",
+    code: '{ score: 0.72, risks: ["retention"], reasoning: "..." }'
+  },
+  {
+    number: "03",
+    title: "Transparent Display",
+    description:
+      "We map results to the color-coded rating you see. The transparency tab shows what data was used and what stayed on your machine.",
+    code: "Nothing stored. Nothing sold. Nothing tracked."
+  }
+];
+---
+
+<section id="transparency" class="section">
+  <div class="section-inner">
+    <h2>How the Privacy Score Happens</h2>
+    <div class="timeline">
+      {steps.map((step) => (
+        <div class="timeline-step">
+          <div class="timeline-number">{step.number}</div>
+          <div class="timeline-content">
+            <h3>{step.title}</h3>
+            <p>{step.description}</p>
+            <div class="code-card">
+              <code>{step.code}</code>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+

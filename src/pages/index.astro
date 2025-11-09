@@ -1,0 +1,27 @@
+---
+import LandingLayout from "../layouts/LandingLayout.astro";
+import Header from "../landing/components/Header.astro";
+import Hero from "../landing/components/Hero.astro";
+import Features from "../landing/components/Features.astro";
+import TransparencyTimeline from "../landing/components/TransparencyTimeline.astro";
+import Commitments from "../landing/components/Commitments.astro";
+import CommunityBanner from "../landing/components/CommunityBanner.astro";
+import InstallSection from "../landing/components/InstallSection.astro";
+import Footer from "../landing/components/Footer.astro";
+---
+
+<LandingLayout>
+  <div class="page">
+    <Header />
+    <main>
+      <Hero />
+      <Features />
+      <TransparencyTimeline />
+      <Commitments />
+      <CommunityBanner />
+      <InstallSection />
+    </main>
+    <Footer />
+  </div>
+</LandingLayout>
+

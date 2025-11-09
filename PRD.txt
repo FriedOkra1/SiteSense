@@ -1,0 +1,198 @@
+# **Product Requirements Document (PRD): SiteSense**
+
+## **1. Overview**
+
+**Product Name:** SiteSense
+**Type:** Open-Source Browser Extension (multi-browser compatible)
+**Core Purpose:**
+SiteSense evaluates the privacy policies of websites and the permission requests of other browser extensions. It provides transparent, explainable privacy ratings using an external large language model (LLM) while collecting and storing no user data.
+
+---
+
+## **2. Guiding Principles**
+
+* **Transparency:** Every step of the analysis process is visible to the user.
+* **Privacy-first:** No login, no telemetry, no persistent storage.
+* **Open Source:** All code, prompt templates, and scoring logic are publicly viewable.
+* **Cross-Browser:** Runs identically across all major browsers via WebExtension APIs.
+
+---
+
+## **3. Key Features**
+
+### **A. Website Privacy Analysis**
+
+* Detects a privacy policy on any visited site.
+* Extracts, cleans, and processes the text locally.
+* Sends only the cleaned text to the LLM API for structured analysis.
+* Displays a privacy rating and explanation in the extension window.
+* No user or browsing data is included in the request.
+
+### **B. Extension Permission Analysis**
+
+* Reads permissions from other installed extensions locally.
+* Generates a privacy sensitivity rating using a deterministic rule-based system.
+* Displays reasoning for each permission in a human-readable form.
+
+### **C. Transparent Scoring Window**
+
+When users open SiteSense, the popup includes a **“How this score was generated”** tab that explains:
+
+* What data was analyzed.
+* What was sent to the LLM.
+* The structured response returned by the LLM.
+* The logic used to interpret that response.
+* Why a particular rating was assigned.
+* What information was **not** shared externally.
+
+---
+
+## **4. System Architecture**
+
+| Layer                   | Description                                                                                         |
+| ----------------------- | --------------------------------------------------------------------------------------------------- |
+| **Frontend**            | Browser extension popup interface with sections for website, extensions, transparency, and about.   |
+| **Analysis Core**       | Local engine handling text cleaning, LLM request construction, and scoring logic.                   |
+| **LLM Interface**       | Stateless function for sending anonymized analysis requests and receiving structured responses.     |
+| **Transparency Module** | Stores only session data for real-time display of reasoning steps. Cleared on tab or session close. |
+| **Compatibility Layer** | Adapts APIs for Chrome, Firefox, Safari, Edge, and other browsers.                                  |
+
+---
+
+## **5. LLM Integration & Prompt Design**
+
+The LLM interface operates as follows:
+
+1. **Input Preparation**
+
+   * Extracts relevant text from detected privacy policy.
+   * Removes any user-specific identifiers, cookies, or referrer data.
+   * Formats text and instructions according to a structured prompt template.
+
+2. **Structured Response Expectation**
+
+   * The LLM returns a structured, interpretable response containing fields describing major privacy characteristics (such as collection, sharing, and retention).
+   * It includes a concise reasoning statement and a normalized score or label.
+   * The reasoning is interpretable, auditable, and displayed verbatim to the user.
+
+3. **Interpretation Layer**
+
+   * Converts the structured LLM output into a user-facing summary and visual rating.
+   * Maps internal values to color-coded categories (e.g., good / moderate / risky).
+   * Associates key phrases in the text with reasoning for transparency.
+
+All prompt templates and mapping logic are open-source and modifiable.
+SiteSense never transmits hidden parameters, scores, or metadata about the user.
+
+---
+
+## **6. Transparency Framework (“Window into the Inner Workings”)**
+
+### **In-Extension Transparency Tab**
+
+Users can view:
+
+* The anonymized request that was sent to the LLM.
+* The returned structured response, displayed exactly as received.
+* The logic used to derive each privacy indicator from that response.
+* A list of detected policy sections or extension permissions contributing to the rating.
+* A clear statement of what data was *not* sent.
+* A reproducible breakdown of the scoring method.
+
+### **Landing Page Transparency Section**
+
+The public website explains, in non-technical language:
+
+1. What SiteSense does.
+2. How it uses AI to interpret privacy policies.
+3. How the analysis steps work end-to-end.
+4. What users can see inside the extension transparency tab.
+5. Why no personal or browsing data ever leaves their device.
+
+This section doubles as educational material and public documentation.
+
+---
+
+## **7. Privacy and Data Handling**
+
+* No persistent storage, accounts, or tracking mechanisms.
+* Only publicly available website text is processed.
+* All processing is local except for the anonymized API call to the LLM.
+* Results are cleared after each session or browser close.
+* No logs or analytics are kept by SiteSense.
+* Full compliance with browser store and data protection guidelines (e.g., GDPR, CCPA).
+
+---
+
+## **8. Cross-Browser Compatibility**
+
+The extension must:
+
+* Use a common WebExtension structure compatible with all major browsers.
+* Implement feature parity across Chromium and Gecko-based platforms.
+* Provide consistent UI behavior, including the transparency tab.
+
+---
+
+## **9. Open Source Implementation**
+
+All the following are publicly viewable:
+
+* Source code for the extension.
+* Prompt templates and LLM request schema.
+* Privacy rating logic and scoring weights.
+* Documentation for how each analysis step operates.
+
+Community contributions, audits, and pull requests are encouraged.
+
+---
+
+## **10. Transparency Commitments**
+
+SiteSense discloses:
+
+* The exact prompt and input text sent to the LLM.
+* The complete structured response from the LLM.
+* The transformation logic from LLM response → displayed result.
+* The deterministic mapping rules between findings and scores.
+* Any model metadata provided (e.g., response time, confidence, or reasoning explanation).
+
+SiteSense cannot disclose:
+
+* Proprietary model internals, training data, or unexposed reasoning layers.
+
+Instead, SiteSense displays the model’s explicit explanation and evidence references in a user-readable format.
+
+---
+
+## **11. User Experience Goals**
+
+* **Clarity:** Simple and minimal UI explaining each privacy outcome.
+* **Trust:** All reasoning and data handling visible in real time.
+* **Performance:** Fast responses with minimal memory footprint.
+* **Education:** Users can learn what policy statements impact privacy scores.
+
+---
+
+## **12. Deployment**
+
+* Distributed via browser extension stores for multiple browsers.
+* Public GitHub repository for audits, issue tracking, and community improvements.
+* Transparent documentation hosted on the official landing page.
+
+---
+
+## **13. Success Criteria**
+
+* Transparent privacy explanations for every analyzed site.
+* Open-source code and documentation publicly accessible.
+* Verified privacy compliance and community trust.
+* Multi-browser stability and performance.
+
+---
+
+## **14. Future Expansion (non-prioritized)**
+
+* Community-driven database of verified privacy ratings.
+* Plugin integrations for privacy education platforms.
+* Optional local AI processing for offline scoring.
