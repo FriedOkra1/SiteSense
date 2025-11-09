@@ -11,14 +11,14 @@ const steps = [
     number: "02",
     title: "LLM Interpretation",
     description:
-      "The anonymized text is sent to our open prompt. The LLM returns structured findings, risks, and rationale you can inspect in full.",
+      "The anonymized text is sent to my open prompt. The LLM returns structured findings, risks, and rationale you can inspect in full.",
     code: '{ score: 0.72, risks: ["retention"], reasoning: "..." }'
   },
   {
     number: "03",
     title: "Transparent Display",
     description:
-      "We map results to the color-coded rating you see. The transparency tab shows what data was used and what stayed on your machine.",
+      "I map results to the color-coded rating you see. The transparency tab shows what data was used and what stayed on your machine.",
     code: "Nothing stored. Nothing sold. Nothing tracked."
   }
 ];
@@ -26,7 +26,7 @@ const steps = [
 
 <section id="transparency" class="section">
   <div class="section-inner">
-    <h2>How the Privacy Score Happens</h2>
+    <h2>How the Privacy Score Is Calculated</h2>
     <div class="timeline">
       {steps.map((step) => (
         <div class="timeline-step">

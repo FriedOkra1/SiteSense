@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    "target": "ES2021",
+    "module": "ESNext",
+    "lib": ["DOM", "DOM.Iterable", "ES2021"],
+    "moduleResolution": "Node",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "baseUrl": ".",
+    "paths": {
+      "@background/*": ["background/*"],
+      "@content/*": ["content/*"],
+      "@shared/*": ["shared/*"],
+      "@ui/*": ["ui/*"]
+    },
+    "types": ["chrome", "firefox-webext-browser", "node"]
+  },
+  "include": [
+    "background/**/*",
+    "content/**/*",
+    "shared/**/*",
+    "ui/**/*",
+    "manifest.config.ts",
+    "env.d.ts"
+  ]
+}
+

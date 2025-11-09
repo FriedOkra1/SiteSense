@@ -1,0 +1,230 @@
+@import url("https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Work+Sans:wght@400;600;700&display=swap");
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-width: 360px;
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font-family: var(--font-heading);
+}
+
+.popup {
+  display: grid;
+  gap: calc(var(--spacing) * 2);
+  padding: calc(var(--spacing) * 3);
+  border: 2px solid var(--color-border);
+  background: rgba(15, 15, 15, 0.92);
+}
+
+.popup__header {
+  display: grid;
+  gap: calc(var(--spacing) / 2);
+}
+
+.popup__title {
+  margin: 0;
+  font-size: 1.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.popup__subtitle {
+  margin: 0;
+  font-family: var(--font-mono);
+  color: var(--color-muted);
+}
+
+.popup__status {
+  padding: calc(var(--spacing) * 2);
+  border: 2px solid var(--color-border);
+  font-family: var(--font-mono);
+}
+
+.popup__score {
+  display: grid;
+  gap: calc(var(--spacing));
+  padding: calc(var(--spacing) * 2);
+  border: 2px solid var(--color-border);
+}
+
+.score {
+  font-size: 2.5rem;
+  font-family: var(--font-mono);
+  color: var(--color-accent-green);
+}
+
+.popup__summary {
+  margin: 0;
+  font-family: var(--font-mono);
+  color: var(--color-muted);
+  white-space: pre-line;
+}
+
+.popup__lists {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: calc(var(--spacing) * 2);
+}
+
+.list {
+  border: 2px solid var(--color-border);
+  padding: calc(var(--spacing) * 2);
+  display: grid;
+  gap: calc(var(--spacing));
+}
+
+.list h2 {
+  margin: 0;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+  letter-spacing: 0.08em;
+}
+
+.list__items {
+  display: grid;
+  gap: calc(var(--spacing));
+  margin: 0;
+  padding-left: calc(var(--spacing) * 2);
+  font-family: var(--font-mono);
+  color: var(--color-muted);
+}
+
+.popup__extensions {
+  display: grid;
+  gap: calc(var(--spacing) * 1.5);
+  border: 2px solid var(--color-border);
+  padding: calc(var(--spacing) * 2);
+}
+
+.popup__extensions-header h2 {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.95rem;
+}
+
+.extensions {
+  display: grid;
+  gap: calc(var(--spacing) * 1.5);
+}
+
+.extension-card {
+  border: 2px solid var(--color-border);
+  padding: calc(var(--spacing) * 1.5);
+  display: grid;
+  gap: calc(var(--spacing));
+  font-family: var(--font-mono);
+}
+
+.extension-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: calc(var(--spacing));
+}
+
+.extension-card__name {
+  font-weight: 700;
+}
+
+.extension-card__badge {
+  padding: calc(var(--spacing) / 3) calc(var(--spacing));
+  border: 2px solid var(--color-border);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.7rem;
+}
+
+.extension-card__badge--low {
+  border-color: var(--color-accent-green);
+  color: var(--color-accent-green);
+}
+
+.extension-card__badge--medium {
+  border-color: var(--color-muted);
+  color: var(--color-muted);
+}
+
+.extension-card__badge--high {
+  border-color: var(--color-accent-red);
+  color: var(--color-accent-red);
+}
+
+.extension-card__description {
+  margin: 0;
+  color: var(--color-muted);
+}
+
+#status-text {
+  margin: 0;
+  white-space: pre-line;
+}
+
+.status--processing {
+  color: var(--color-accent-red);
+}
+
+.status--error {
+  color: var(--color-accent-red);
+}
+
+.status--complete {
+  color: var(--color-accent-green);
+}
+
+.popup__actions {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--spacing) * 1.5);
+}
+
+.popup__button {
+  appearance: none;
+  border: 2px solid var(--color-border);
+  background: var(--color-accent-green);
+  color: var(--color-bg);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: calc(var(--spacing) * 1.25) calc(var(--spacing) * 2);
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+
+.popup__button:hover,
+.popup__button:focus-visible {
+  transform: translateY(-1px);
+  background: transparent;
+  color: var(--color-accent-green);
+}
+
+.popup__link {
+  font-family: var(--font-mono);
+  color: var(--color-accent-green);
+  text-decoration: none;
+}
+
+.popup__link:hover,
+.popup__link:focus-visible {
+  text-decoration: underline;
+}
+
+.extensions-empty {
+  font-family: var(--font-mono);
+  color: var(--color-muted);
+}
+
+@media (max-width: 420px) {
+  .popup__lists {
+    grid-template-columns: 1fr;
+  }
+}
+

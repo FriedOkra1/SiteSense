@@ -78,37 +78,52 @@ header {
 }
 
 .nav-bar {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
-  justify-content: space-between;
   max-width: var(--max-width);
   margin: 0 auto;
   padding: calc(var(--spacing) * 2);
+  gap: calc(var(--spacing) * 2);
 }
 
 .logo {
-  font-size: 1.25rem;
+  font-size: 1.35rem;
   font-family: var(--font-mono);
-  text-transform: uppercase;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.12em;
+  font-weight: 700;
+  text-decoration: none;
+  color: var(--color-fg);
 }
 
 .nav-links {
   display: flex;
-  gap: calc(var(--spacing) * 2);
+  gap: calc(var(--spacing) * 3);
   font-family: var(--font-mono);
+  justify-content: center;
 }
 
 .nav-links a {
-  padding-bottom: calc(var(--spacing) / 2);
+  padding: calc(var(--spacing) / 2) calc(var(--spacing));
   border-bottom: 2px solid transparent;
   transition: border-bottom-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+  letter-spacing: 0.08em;
 }
 
 .nav-links a:hover,
 .nav-links a:focus-visible {
   border-bottom-color: var(--color-accent-green);
   color: var(--color-accent-green);
+}
+
+.nav-badge {
+  font-family: var(--font-mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border: 2px solid var(--color-grid);
+  padding: calc(var(--spacing) * 0.75) calc(var(--spacing) * 1.5);
+  color: var(--color-accent-green);
+  justify-self: end;
 }
 
 .hero {
@@ -362,13 +377,23 @@ footer {
 
 @media (max-width: 720px) {
   .nav-bar {
-    flex-direction: column;
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
     gap: calc(var(--spacing) * 2);
-    align-items: stretch;
+  }
+
+  .logo {
+    justify-self: center;
   }
 
   .nav-links {
-    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: calc(var(--spacing) * 2.5);
+  }
+
+  .nav-badge {
+    justify-self: center;
   }
 
   .section {

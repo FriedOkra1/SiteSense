@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SiteSense</title>
+  </head>
+  <body>
+    <main id="app" class="popup">
+      <section class="popup__header">
+        <h1 class="popup__title">SiteSense</h1>
+        <p class="popup__subtitle">Transparent privacy intelligence</p>
+      </section>
+      <section class="popup__status">
+        <p id="status-text">Waiting for analysis…</p>
+      </section>
+      <section class="popup__score">
+        <div class="score" id="score-value">--</div>
+        <p id="summary-text" class="popup__summary">No analysis yet.</p>
+      </section>
+      <section class="popup__lists">
+        <div class="list">
+          <h2>Positives</h2>
+          <ul id="positives-list" class="list__items"></ul>
+        </div>
+        <div class="list">
+          <h2>Risks</h2>
+          <ul id="risks-list" class="list__items"></ul>
+        </div>
+      </section>
+      <section class="popup__extensions">
+        <div class="popup__extensions-header">
+          <h2>Extension Audits</h2>
+          <p class="popup__subtitle">Local rule-based scoring of installed extensions.</p>
+        </div>
+        <div id="extensions-list" class="extensions"></div>
+      </section>
+      <section class="popup__actions">
+        <button id="refresh-button" type="button" class="popup__button">
+          Re-run analysis
+        </button>
+        <a id="open-transparency" href="#" class="popup__link">Transparency log</a>
+      </section>
+    </main>
+    <script type="module" src="/ui/popup/main.ts"></script>
+  </body>
+</html>
+

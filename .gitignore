@@ -1,6 +1,9 @@
-node_modules/
-.astro/
-.vercel/
-dist/
+landing/node_modules/
+landing/.astro/
+landing/.vercel/
+landing/dist/
+extension/node_modules/
+extension/dist/
+extension/.env.local
+extension/.env.*
 .DS_Store
-node_modules

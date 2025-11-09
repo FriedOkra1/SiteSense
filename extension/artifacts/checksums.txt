@@ -1,0 +1,2 @@
+4e40cd8c42b2ed1d2c818a6cc525634459ae1e21375e2b3f763e8aff0a84da09  artifacts/sitesense-chrome.zip
+eb95ac5d2576bd76063b57708c1b82b8143933d1c737f9cc68cc691aab6e90b7  artifacts/sitesense-firefox.zip

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SiteSense Options</title>
+  </head>
+  <body>
+    <main class="options">
+      <header class="options__header">
+        <h1>SiteSense Options</h1>
+        <p>Manage your API key and transparency preferences.</p>
+      </header>
+      <form id="api-form" class="options__form">
+        <label for="api-key">LLM API Key</label>
+        <textarea id="api-key" name="api-key" rows="3" placeholder="sk-..." required></textarea>
+        <div class="options__form-actions">
+          <button type="submit">Save</button>
+          <button type="button" id="clear-key" class="ghost">Remove Key</button>
+        </div>
+        <p id="form-status" role="status"></p>
+      </form>
+      <section class="options__transparency">
+        <h2>Transparency Logs</h2>
+        <p>Export the in-memory audit of prompts, responses, and scoring logic for this session.</p>
+        <button type="button" id="export-transparency">Export Session Log</button>
+        <p id="transparency-status" role="status"></p>
+      </section>
+    </main>
+    <script type="module" src="/ui/options/main.ts"></script>
+  </body>
+</html>
+

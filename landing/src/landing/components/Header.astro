@@ -9,14 +9,14 @@ const links = [
 ---
 
 <header>
-  <div class="nav-bar" role="navigation" aria-label="Primary">
-    <div class="logo">SiteSense</div>
+  <div class="nav-bar" role="navigation" aria-label="Primary navigation">
+    <a class="logo" href="#overview">SiteSense</a>
     <nav class="nav-links">
       {links.map((link) => (
         <a href={link.href}>{link.label}</a>
       ))}
     </nav>
-    <a class="cta-button" href="#install">Download Extension</a>
+    <span class="nav-badge">Stay Secure</span>
   </div>
 </header>
 
