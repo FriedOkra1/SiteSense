@@ -3,6 +3,11 @@ SiteSense (Claude Edition)
 
 SiteSense ships an MVP experience that hardcodes Claude-backed privacy snapshots for any site you visit. The goal is to feel realistic while we iterate quickly, so every result stays consistent, over 50%, and grounded in recognizable governance language.
 
+Live Site
+---------
+
+Visit the public landing page at https://your-site-sense.vercel.app for the latest build and documentation links.
+
 Auditable AI Position
 ---------------------
 
