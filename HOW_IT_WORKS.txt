@@ -1,0 +1,81 @@
+How SiteSense Works
+===================
+
+Overview
+--------
+SiteSense is a fully automated privacy intelligence companion that evaluates any website or browser extension in real time. It combines Claude-powered policy analysis with local telemetry to produce a consistent privacy score, narrative summary, and auditable evidence trail.
+
+1. Discover & Collect
+---------------------
+- The content script listens for navigation events and inspects the DOM for privacy policies or terms of service.
+- When a candidate document is found, the text extractor normalizes headers, removes boilerplate, and packages representative excerpts.
+- All extraction runs locally; only the curated excerpts are forwarded for analysis.
+
+2. Preflight Guardrails
+-----------------------
+- Before any prompt reaches Claude, the guardrail pipeline checks for jailbreak attempts, long-tail injections, and high-risk keywords (financial, medical, biometric).
+- Suspicious segments are rewritten or redacted automatically. If the prompt still fails policy checks, SiteSense blocks the request and surfaces a transparent error to the user.
+
+3. Claude Analysis
+------------------
+- Vercel-hosted Claude endpoints receive the sanitized prompt along with a structured JSON schema describing the expected output fields (summary, score, positives, risks, citations, detailed rationale).
+- Claude evaluates the policy against governance checklists, regional compliance requirements, and security hygiene signals.
+- The model returns a normalized payload including:
+  - Overall privacy score (0–100)
+  - Natural-language summary
+  - Top strengths and risks with plain-language explanations
+  - Deep-dive rationale for each strength/risk
+  - Supporting citations mapped to direct policy quotes
+
+4. Post-Processing & Scoring
+----------------------------
+- The backend validates Claude’s payload against the schema, ensuring no fields are missing or malformed.
+- Scores are calibrated against historical baselines to avoid drift and ensure cross-site comparability.
+- If the response fails validation, SiteSense automatically retries with fallback instructions; repeated failures trigger a safe-mode notice to the user.
+
+5. Transparency Ledger
+----------------------
+- Every request/response pair is logged in the in-memory transparency ledger with a session ID derived from the target URL and timestamp.
+- Logged events include: sanitized prompt, Claude response, derived score, rationale arrays, and any extension audit notes.
+- Users can export the ledger via the options page to perform independent audits or support incident reviews.
+
+6. Extension Audit
+------------------
+- Parallel to policy analysis, SiteSense inspects installed extensions, classifies permission risk, and annotates findings based on Claude’s governance rules.
+- The audit attaches to the same transparency session, giving teams a full-view snapshot of privacy posture plus local extension risk.
+
+7. User Experience
+------------------
+- The popup displays:
+  - Real-time status (queued, processing, complete)
+  - Site name + score + concise summary
+  - Strengths and risks with quick bullet explanations
+  - Detailed rationale lists and citations
+- The options page includes the latest snapshot, extension audit, and a one-click “Export Transparency Log” button.
+
+8. Guarding Against Bad Actors
+-------------------------------
+- Honeypot prompts and decoy policy artifacts detect malicious attempts to manipulate the model.
+- Rate-limiters and anomaly detectors watch for repeated exploits, escalating alerts to admins and temporarily locking analysis for abusive clients.
+
+9. Recovery & Controls
+----------------------
+- Feature flags allow operators to disable outbound analysis if anomalies arise.
+- Recorded transparency data supports after-action reviews, letting teams roll back to a safe configuration while they investigate.
+
+Deployment Footprint
+--------------------
+- Extension code runs in Chrome & Firefox with shared TypeScript modules.
+- Landing site is deployed on Vercel, offering public documentation, install links, and access to support resources.
+- Claude interactions flow through secure HTTPS endpoints, with API keys managed via environment variables and never bundled in the client.
+
+In Practice
+-----------
+1. User opens a site → SiteSense extracts policy content.
+2. Guardrails sanitize text → Claude analyzes via structured prompt.
+3. Results stream back → Popup updates with score, summary, and rationale.
+4. Transparency ledger captures the entire exchange → user can export any time.
+5. If the user suspects an issue → they open the options page, review logs, and share them with stakeholders for review or compliance proof.
+
+The outcome is a predictable, auditable, and user-friendly privacy assistant that makes sense of any policy in seconds.***
+
