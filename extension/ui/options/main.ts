@@ -1,25 +1,18 @@
 import "../styles/tokens.css";
 import "./options.css";
 import browser from "webextension-polyfill";
-import { isTransparencyExportResult } from "@shared/messages";
-import { clearApiKey, getApiKey, setApiKey } from "@shared/storage";
+import { isTransparencyExportResult, type TransparencyExportResult } from "@shared/messages";
 
-const form = document.getElementById("api-form") as HTMLFormElement | null;
-const textarea = document.getElementById("api-key") as HTMLTextAreaElement | null;
-const formStatusEl = document.getElementById("form-status");
-const clearButton = document.getElementById("clear-key") as HTMLButtonElement | null;
 const exportButton = document.getElementById("export-transparency") as HTMLButtonElement | null;
 const transparencyStatusEl = document.getElementById("transparency-status");
-const envKey = (import.meta.env.VITE_LLM_API_KEY ?? "").trim();
-
-function setFormStatus(message: string, tone: "default" | "success" | "danger" = "default") {
-  if (!formStatusEl) {
-    return;
-  }
-
-  formStatusEl.textContent = message;
-  formStatusEl.className = `status status--${tone}`;
-}
+const analysisScoreEl = document.getElementById("analysis-score");
+const analysisSummaryEl = document.getElementById("analysis-summary");
+const analysisExplanationEl = document.getElementById("analysis-explanation");
+const analysisPositivesEl = document.getElementById("analysis-positives") as HTMLUListElement | null;
+const analysisRisksEl = document.getElementById("analysis-risks") as HTMLUListElement | null;
+const analysisRiskDetailsEl = document.getElementById("analysis-risk-details") as HTMLUListElement | null;
+const analysisCitationsEl = document.getElementById("analysis-citations") as HTMLUListElement | null;
+const analysisExtensionsEl = document.getElementById("analysis-extensions") as HTMLUListElement | null;
 
 function setTransparencyStatus(
   message: string,
@@ -33,70 +26,119 @@ function setTransparencyStatus(
   transparencyStatusEl.className = `status status--${tone}`;
 }
 
-async function hydrateForm(): Promise<void> {
-  if (!textarea) {
+function renderSnapshotLists(target: HTMLUListElement | null, items: string[], empty: string): void {
+  if (!target) return;
+  target.textContent = "";
+  if (!items.length) {
+    const li = document.createElement("li");
+    li.textContent = empty;
+    target.appendChild(li);
     return;
   }
 
-  try {
-    const key = await getApiKey();
-    textarea.value = typeof key === "string" ? key : "";
-
-    if (key) {
-      setFormStatus("API key loaded from secure storage.", "success");
-    } else if (envKey) {
-      setFormStatus("Using API key provided via .env configuration.", "success");
-    } else {
-      setFormStatus("No API key stored yet.", "default");
-    }
-  } catch (error) {
-    console.error("[SiteSense] Failed to load API key", error);
-    setFormStatus("Unable to load existing key. Check console.", "danger");
+  for (const item of items) {
+    const li = document.createElement("li");
+    li.textContent = item;
+    target.appendChild(li);
   }
 }
 
-async function saveKey(event: SubmitEvent): Promise<void> {
-  event.preventDefault();
-  if (!textarea) {
-    return;
-  }
-
-  const key = textarea.value.trim();
-
-  if (!key) {
-    setFormStatus("Please enter an API key before saving.", "danger");
-    return;
-  }
-
-  try {
-    await setApiKey(key);
-    setFormStatus("API key stored locally. It never leaves your browser.", "success");
-  } catch (error) {
-    console.error("[SiteSense] Failed to save API key", error);
-    setFormStatus("Unable to store API key. Check console for details.", "danger");
-  }
+function getLatestEvent(
+  sessions: TransparencyExportResult["sessions"],
+  type: "analysis" | "extension-audit"
+): { timestamp: number; payload: any } | null {
+  let latest: { timestamp: number; payload: any } | null = null;
+  Object.values(sessions).forEach((events) => {
+    events
+      .filter((event) => event.type === type)
+      .forEach((event) => {
+        if (!latest || event.timestamp > latest.timestamp) {
+          latest = { timestamp: event.timestamp, payload: event.payload };
+        }
+      });
+  });
+  return latest;
 }
 
-async function clearKey(): Promise<void> {
-  if (!textarea) {
+function renderAnalysisSnapshot(response: TransparencyExportResult | null): void {
+  if (!response) {
+    if (analysisScoreEl) analysisScoreEl.textContent = "--";
+    if (analysisSummaryEl) analysisSummaryEl.textContent = "Awaiting analysis.";
+    if (analysisExplanationEl) analysisExplanationEl.textContent = "No explanation recorded yet.";
+    renderSnapshotLists(analysisPositivesEl, [], "No positives recorded.");
+    renderSnapshotLists(analysisRisksEl, [], "No risks recorded.");
+    renderSnapshotLists(analysisRiskDetailsEl, [], "No risk rationale recorded.");
+    renderSnapshotLists(analysisCitationsEl, [], "No citations recorded.");
+    renderSnapshotLists(analysisExtensionsEl, [], "No extension audits recorded.");
     return;
   }
 
-  try {
-    await clearApiKey();
-    textarea.value = "";
-    if (envKey) {
-      setFormStatus("API key removed locally. .env configuration will still be used.", "success");
-    } else {
-      setFormStatus("API key removed from this device.", "success");
-    }
-  } catch (error) {
-    console.error("[SiteSense] Failed to remove API key", error);
-    setFormStatus("Unable to remove key. Check console.", "danger");
+  const analysisEvent = getLatestEvent(response.sessions, "analysis");
+  const auditEvent = getLatestEvent(response.sessions, "extension-audit");
+
+  const analysisPayload = analysisEvent?.payload ?? null;
+  if (analysisScoreEl) {
+    const score = typeof analysisPayload?.score === "number" ? analysisPayload.score : undefined;
+    analysisScoreEl.textContent = score !== undefined ? `${Math.round(score * 100)}%` : "--";
   }
+  if (analysisSummaryEl) {
+    analysisSummaryEl.textContent =
+      typeof analysisPayload?.summary === "string"
+        ? analysisPayload.summary
+        : "Awaiting analysis.";
+  }
+  if (analysisExplanationEl) {
+    analysisExplanationEl.textContent =
+      typeof analysisPayload?.scoreExplanation === "string"
+        ? analysisPayload.scoreExplanation
+        : "No explanation recorded yet.";
+  }
+
+  renderSnapshotLists(
+    analysisPositivesEl,
+    Array.isArray(analysisPayload?.positives) ? analysisPayload.positives : [],
+    "No positives recorded."
+  );
+  renderSnapshotLists(
+    analysisRisksEl,
+    Array.isArray(analysisPayload?.risks) ? analysisPayload.risks : [],
+    "No risks recorded."
+  );
+  renderSnapshotLists(
+    analysisRiskDetailsEl,
+    Array.isArray(analysisPayload?.riskDetails)
+      ? analysisPayload.riskDetails.map(
+          (detail: { risk?: string; reason?: string }) =>
+            `${detail?.risk ?? "Risk"} — ${detail?.reason ?? "No reason provided."}`
+        )
+      : [],
+    "No risk rationale recorded."
+  );
+  renderSnapshotLists(
+    analysisCitationsEl,
+    Array.isArray(analysisPayload?.citations)
+      ? analysisPayload.citations.map(
+          (citation: { quote?: string; reason?: string }) =>
+            `"${citation?.quote ?? "Unspecified"}" — ${citation?.reason ?? "No reason provided."}`
+        )
+      : [],
+    "No citations recorded."
+  );
+  renderSnapshotLists(
+    analysisExtensionsEl,
+    Array.isArray(auditEvent?.payload)
+      ? auditEvent.payload.map(
+          (extension: { name?: string; audit?: { overall?: string; score?: number } }) =>
+            `${extension?.name ?? "Extension"} — ${
+              extension?.audit?.overall?.toUpperCase() ?? "UNKNOWN"
+            } ${(extension?.audit?.score ?? 0) * 100}%`
+        )
+      : [],
+    "No extension audits recorded."
+  );
 }
 
-async function exportTransparency(): Promise<void> {
+async function fetchTransparency(): Promise<TransparencyExportResult | null> {
   try {
     const response = (await browser.runtime.sendMessage({
       type: "transparency:export"
@@ -104,10 +146,25 @@ async function exportTransparency(): Promise<void> {
 
     if (!isTransparencyExportResult(response)) {
       setTransparencyStatus("No transparency data available.", "default");
-      return;
+      return null;
     }
 
-    const payload = JSON.stringify(response.sessions, null, 2);
+    return response;
+  } catch (error) {
+    console.error("[SiteSense] Failed to request transparency data", error);
+    setTransparencyStatus("Unable to load transparency data.", "danger");
+    return null;
+  }
+}
+
+async function exportTransparency(): Promise<void> {
+  const data = await fetchTransparency();
+  if (!data) {
+    return;
+  }
+
+  try {
+    const payload = JSON.stringify(data.sessions, null, 2);
     const blob = new Blob([payload], { type: "application/json" });
     const url = URL.createObjectURL(blob);
 
@@ -126,18 +183,6 @@ async function exportTransparency(): Promise<void> {
   }
 }
 
-if (form) {
-  form.addEventListener("submit", (event) => {
-    void saveKey(event);
-  });
-}
-
-if (clearButton) {
-  clearButton.addEventListener("click", () => {
-    void clearKey();
-  });
-}
-
 if (exportButton) {
   exportButton.addEventListener("click", () => {
     void exportTransparency();
@@ -145,5 +190,8 @@ if (exportButton) {
 }
 
 setTransparencyStatus("No transparency export yet.");
-void hydrateForm();
 
+void (async () => {
+  const data = await fetchTransparency();
+  renderAnalysisSnapshot(data);
+})();

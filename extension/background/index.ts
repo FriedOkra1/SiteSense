@@ -1,11 +1,6 @@
 import browser, { type Runtime } from "webextension-polyfill";
-import {
-  isPermissionAuditRequest,
-  isTransparencyExportRequest,
-  isPolicyScanRequest,
-  PolicyScanResult
-} from "@shared/messages";
-import { requestPolicyAnalysis, MissingApiKeyError } from "@shared/api/client";
+import { isTransparencyExportRequest, isPolicyScanRequest, PolicyScanResult } from "@shared/messages";
+import { requestPolicyAnalysis } from "@shared/api/client";
 import { TransparencyLedger } from "@shared/transparency";
 import { evaluateInstalledExtensions } from "@background/permissions";
 
@@ -19,23 +14,11 @@ browser.runtime.onInstalled.addListener((details: Runtime.OnInstalledDetailsType
 });
 
 browser.runtime.onMessage.addListener(async (message: unknown, sender: Runtime.MessageSender) => {
-  if (isPermissionAuditRequest(message)) {
-    const audit = await evaluateInstalledExtensions();
-    const response = {
-      type: "permissions:audit-result",
-      extensions: audit
-    } as const;
-    await browser.runtime.sendMessage(response);
-    return response;
-  }
-
   if (isTransparencyExportRequest(message)) {
-    const response = {
+    return {
       type: "transparency:export-result",
       sessions: transparencyLedger.export()
     } as const;
-    await browser.runtime.sendMessage(response);
-    return response;
   }
 
   if (!isPolicyScanRequest(message)) {
@@ -55,7 +38,7 @@ browser.runtime.onMessage.addListener(async (message: unknown, sender: Runtime.M
     type: "policy:scan-result",
     url: message.url,
     status: "processing",
-    summary: "Policy content queued for analysis…",
+    summary: "Policy content queued for Claude's local snapshot…",
     sessionId
   } satisfies PolicyScanResult);
 
@@ -65,6 +48,9 @@ browser.runtime.onMessage.addListener(async (message: unknown, sender: Runtime.M
       session
     );
 
+    const extensionAudit = await evaluateInstalledExtensions();
+    session.logExtensionAudit(extensionAudit);
+
     const response: PolicyScanResult = {
       type: "policy:scan-result",
       url: message.url,
@@ -73,6 +59,10 @@ browser.runtime.onMessage.addListener(async (message: unknown, sender: Runtime.M
       score: result.score,
       positives: result.positives,
       risks: result.risks,
+      scoreExplanation: result.scoreExplanation,
+      positiveDetails: result.positiveDetails,
+      riskDetails: result.riskDetails,
+      citations: result.citations,
       sessionId
     };
 
@@ -85,10 +75,7 @@ browser.runtime.onMessage.addListener(async (message: unknown, sender: Runtime.M
       type: "policy:scan-result",
       url: message.url,
       status: "error",
-      summary:
-        error instanceof MissingApiKeyError
-          ? "Add an API key in the options page to enable analysis."
-          : "Analysis failed. Check transparency log for details.",
+      summary: "Claude analysis failed. Check transparency log for details.",
       sessionId,
       error: error instanceof Error ? error.message : String(error)
     };

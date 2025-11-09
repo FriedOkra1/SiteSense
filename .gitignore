@@ -6,4 +6,5 @@ extension/node_modules/
 extension/dist/
 extension/.env.local
 extension/.env.*
+extension/.env
 .DS_Store

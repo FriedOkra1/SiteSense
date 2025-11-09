@@ -9,20 +9,47 @@
     <main class="options">
       <header class="options__header">
         <h1>SiteSense Options</h1>
-        <p>Manage your API key and transparency preferences.</p>
+        <p>Claude-powered privacy intelligence with auditable guardrails.</p>
+        <p class="options__notice">
+          AI products can feel unpredictable until inference completes. SiteSense prevents jailbreak-style prompts, logs every step, and gives you the tooling to roll back if something slips through.
+        </p>
       </header>
-      <form id="api-form" class="options__form">
-        <label for="api-key">LLM API Key</label>
-        <textarea id="api-key" name="api-key" rows="3" placeholder="sk-..." required></textarea>
-        <div class="options__form-actions">
-          <button type="submit">Save</button>
-          <button type="button" id="clear-key" class="ghost">Remove Key</button>
+      <section class="options__analysis">
+        <h2>Latest Analysis Snapshot</h2>
+        <div class="analysis__summary">
+          <p><strong>Score:</strong> <span id="analysis-score">--</span></p>
+          <p><strong>Summary:</strong> <span id="analysis-summary">Awaiting analysis.</span></p>
+          <p><strong>Explanation:</strong></p>
+          <p id="analysis-explanation" class="analysis__explanation">No explanation recorded yet.</p>
         </div>
-        <p id="form-status" role="status"></p>
-      </form>
+        <div class="analysis__grid">
+          <div>
+            <h3>Positives</h3>
+            <ul id="analysis-positives"></ul>
+          </div>
+          <div>
+            <h3>Risks</h3>
+            <ul id="analysis-risks"></ul>
+          </div>
+        </div>
+        <div>
+          <h3>Risk rationale</h3>
+          <ul id="analysis-risk-details"></ul>
+        </div>
+        <div>
+          <h3>Citations</h3>
+          <ul id="analysis-citations"></ul>
+        </div>
+        <div>
+          <h3>Extension audits</h3>
+          <ul id="analysis-extensions"></ul>
+        </div>
+      </section>
       <section class="options__transparency">
         <h2>Transparency Logs</h2>
-        <p>Export the in-memory audit of prompts, responses, and scoring logic for this session.</p>
+        <p>
+          Auditable AI means resilient guardrails before inference, plus recovery plans after. Export these logs to trace how Claude generated each recommendation and pinpoint any bad-actor activity.
+        </p>
         <button type="button" id="export-transparency">Export Session Log</button>
         <p id="transparency-status" role="status"></p>
       </section>

@@ -12,24 +12,18 @@ export type PolicyScanResult = {
   score?: number;
   positives?: string[];
   risks?: string[];
+  scoreExplanation?: string;
+  positiveDetails?: Array<{ positive: string; reason: string }>;
+  riskDetails?: Array<{ risk: string; reason: string }>;
+  citations?: Array<{ quote: string; reason: string }>;
   sessionId?: string;
   error?: string;
 };
 
-import type { ExtensionPermissionSummary } from "@shared/rules/permissions";
 import type { TransparencyEvent } from "@shared/transparency";
 
 export type PolicyScanTrigger = {
   type: "policy:scan-trigger";
-};
-
-export type PermissionAuditRequest = {
-  type: "permissions:audit";
-};
-
-export type PermissionAuditResultMessage = {
-  type: "permissions:audit-result";
-  extensions: ExtensionPermissionSummary[];
 };
 
 export type TransparencyExportRequest = {
@@ -45,8 +39,6 @@ export type RuntimeMessage =
   | PolicyScanRequest
   | PolicyScanResult
   | PolicyScanTrigger
-  | PermissionAuditRequest
-  | PermissionAuditResultMessage
   | TransparencyExportRequest
   | TransparencyExportResult;
 
@@ -73,24 +65,6 @@ export function isPolicyScanTrigger(message: unknown): message is PolicyScanTrig
     typeof message === "object" &&
     message !== null &&
     (message as Record<string, unknown>).type === "policy:scan-trigger"
-  );
-}
-
-export function isPermissionAuditRequest(message: unknown): message is PermissionAuditRequest {
-  return (
-    typeof message === "object" &&
-    message !== null &&
-    (message as Record<string, unknown>).type === "permissions:audit"
-  );
-}
-
-export function isPermissionAuditResult(
-  message: unknown
-): message is PermissionAuditResultMessage {
-  return (
-    typeof message === "object" &&
-    message !== null &&
-    (message as Record<string, unknown>).type === "permissions:audit-result"
   );
 }
 

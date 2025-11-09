@@ -9,7 +9,8 @@
     <main id="app" class="popup">
       <section class="popup__header">
         <h1 class="popup__title">SiteSense</h1>
-        <p class="popup__subtitle">Transparent privacy intelligence</p>
+        <p class="popup__subtitle">Claude-powered privacy intelligence</p>
+        <p id="site-name" class="popup__site">Scanning current site…</p>
       </section>
       <section class="popup__status">
         <p id="status-text">Waiting for analysis…</p>
@@ -28,12 +29,21 @@
           <ul id="risks-list" class="list__items"></ul>
         </div>
       </section>
-      <section class="popup__extensions">
-        <div class="popup__extensions-header">
-          <h2>Extension Audits</h2>
-          <p class="popup__subtitle">Local rule-based scoring of installed extensions.</p>
+      <section class="popup__explanation">
+        <h2>Why this score</h2>
+        <p id="score-explanation" class="popup__summary">Awaiting analysis.</p>
+        <div class="breakdown">
+          <h3>Risk rationale</h3>
+          <ul id="risk-details-list" class="list__items"></ul>
         </div>
-        <div id="extensions-list" class="extensions"></div>
+        <div class="breakdown">
+          <h3>Positive rationale</h3>
+          <ul id="positive-details-list" class="list__items"></ul>
+        </div>
+        <div class="breakdown">
+          <h3>Citations</h3>
+          <ul id="citations-list" class="list__items"></ul>
+        </div>
       </section>
       <section class="popup__actions">
         <button id="refresh-button" type="button" class="popup__button">

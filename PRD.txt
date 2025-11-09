@@ -74,6 +74,7 @@ The LLM interface operates as follows:
    * The LLM returns a structured, interpretable response containing fields describing major privacy characteristics (such as collection, sharing, and retention).
    * It includes a concise reasoning statement and a normalized score or label.
    * The reasoning is interpretable, auditable, and displayed verbatim to the user.
+   * Requests lean on Claude guardrail catalogs to keep responses structured and auditable, mirroring the `text.format` style schema without relying on deprecated response formats.
 
 3. **Interpretation Layer**
 

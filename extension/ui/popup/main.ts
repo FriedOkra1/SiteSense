@@ -1,14 +1,9 @@
 import "../styles/tokens.css";
 import "./popup.css";
 import browser from "webextension-polyfill";
-import {
-  isPermissionAuditResult,
-  isPolicyScanResult,
-  type PermissionAuditResultMessage,
-  type PolicyScanResult
-} from "@shared/messages";
-import type { ExtensionPermissionSummary } from "@shared/rules/permissions";
+import { isPolicyScanResult, type PolicyScanResult } from "@shared/messages";
 
+const siteNameEl = document.getElementById("site-name");
 const statusEl = document.getElementById("status-text");
 const refreshButton = document.getElementById("refresh-button");
 const transparencyLink = document.getElementById("open-transparency");
@@ -16,7 +11,10 @@ const scoreEl = document.getElementById("score-value");
 const summaryEl = document.getElementById("summary-text");
 const positivesList = document.getElementById("positives-list") as HTMLUListElement | null;
 const risksList = document.getElementById("risks-list") as HTMLUListElement | null;
-const extensionsList = document.getElementById("extensions-list");
+const scoreExplanationEl = document.getElementById("score-explanation");
+const riskDetailsList = document.getElementById("risk-details-list") as HTMLUListElement | null;
+const positiveDetailsList = document.getElementById("positive-details-list") as HTMLUListElement | null;
+const citationsList = document.getElementById("citations-list") as HTMLUListElement | null;
 
 function setStatus(
   text: string,
@@ -51,61 +49,9 @@ function renderList(target: HTMLUListElement | null, items: string[], emptyText:
   }
 }
 
-function renderExtensions(extensions: ExtensionPermissionSummary[]): void {
-  if (!extensionsList) {
-    return;
-  }
-
-  extensionsList.textContent = "";
-
-  if (!extensions.length) {
-    const empty = document.createElement("p");
-    empty.className = "extensions-empty";
-    empty.textContent = "No other extensions detected.";
-    extensionsList.appendChild(empty);
-    return;
-  }
-
-  for (const extension of extensions.slice(0, 5)) {
-    const card = document.createElement("article");
-    card.className = "extension-card";
-
-    const header = document.createElement("div");
-    header.className = "extension-card__header";
-
-    const name = document.createElement("span");
-    name.className = "extension-card__name";
-    name.textContent = extension.name;
-
-    const badge = document.createElement("span");
-    badge.className = `extension-card__badge extension-card__badge--${extension.audit.overall}`;
-    badge.textContent = `${extension.audit.overall.toUpperCase()} • ${(extension.audit.score * 100).toFixed(0)}%`;
-
-    header.appendChild(name);
-    header.appendChild(badge);
-
-    const description = document.createElement("p");
-    description.className = "extension-card__description";
-    const topFinding = extension.audit.findings[0];
-    description.textContent = topFinding
-      ? topFinding.rationale
-      : "No sensitive permissions detected.";
-
-    card.appendChild(header);
-
-    if (!extension.enabled) {
-      const disabled = document.createElement("p");
-      disabled.className = "extension-card__description";
-      disabled.textContent = "Extension disabled.";
-      card.appendChild(disabled);
-    }
-
-    card.appendChild(description);
-    extensionsList.appendChild(card);
-  }
-}
-
 function renderAnalysis(result: PolicyScanResult): void {
+  updateSiteName(result.url);
+
   if (summaryEl) {
     summaryEl.textContent = result.summary;
   }
@@ -117,6 +63,53 @@ function renderAnalysis(result: PolicyScanResult): void {
 
   renderList(positivesList, result.positives ?? [], "No strengths highlighted yet.");
   renderList(risksList, result.risks ?? [], "No risks identified yet.");
+
+  if (scoreExplanationEl) {
+    scoreExplanationEl.textContent = result.scoreExplanation ?? "No explanation provided.";
+  }
+
+  renderDetailList(
+    riskDetailsList,
+    result.riskDetails?.map((item) => `${item.risk}: ${item.reason}`) ?? [],
+    "No risk rationale provided."
+  );
+
+  renderDetailList(
+    positiveDetailsList,
+    result.positiveDetails?.map((item) => `${item.positive}: ${item.reason}`) ?? [],
+    "No positive rationale provided."
+  );
+
+  renderDetailList(
+    citationsList,
+    result.citations?.map((citation) => `"${citation.quote}" — ${citation.reason}`) ?? [],
+    "No citations supplied."
+  );
+}
+
+function renderDetailList(
+  target: HTMLUListElement | null,
+  items: string[],
+  emptyText: string
+): void {
+  if (!target) {
+    return;
+  }
+
+  target.textContent = "";
+
+  if (!items.length) {
+    const placeholder = document.createElement("li");
+    placeholder.textContent = emptyText;
+    target.appendChild(placeholder);
+    return;
+  }
+
+  for (const item of items.slice(0, 5)) {
+    const element = document.createElement("li");
+    element.textContent = item;
+    target.appendChild(element);
+  }
 }
 
 async function triggerActiveTabScan(): Promise<void> {
@@ -154,7 +147,11 @@ browser.runtime.onMessage.addListener((message: unknown) => {
     return;
   }
 
-  const { summary, status, score, positives, risks, error } = message;
+  const { summary, status, score, positives, risks, error, url } = message;
+
+  if (url) {
+    updateSiteName(url);
+  }
 
   if (status === "processing") {
     setStatus(summary, "processing");
@@ -170,32 +167,31 @@ browser.runtime.onMessage.addListener((message: unknown) => {
   setStatus(summary, "complete");
 });
 
-browser.runtime.onMessage.addListener((message: unknown) => {
-  if (!isPermissionAuditResult(message)) {
+setStatus("Claude is preparing a snapshot…");
+renderList(positivesList, [], "No strengths highlighted yet.");
+renderList(risksList, [], "No risks identified yet.");
+if (scoreExplanationEl) {
+  scoreExplanationEl.textContent = "Awaiting Claude's analysis.";
+}
+renderDetailList(riskDetailsList, [], "No risk rationale provided.");
+renderDetailList(positiveDetailsList, [], "No positive rationale provided.");
+renderDetailList(citationsList, [], "No citations supplied.");
+
+function updateSiteName(url: string | undefined): void {
+  if (!siteNameEl || !url) {
     return;
   }
 
-  renderExtensions(message.extensions);
-});
-
-setStatus("Waiting for analysis…");
-renderList(positivesList, [], "No strengths highlighted yet.");
-renderList(risksList, [], "No risks identified yet.");
-renderExtensions([]);
-
-async function requestPermissionAudit(): Promise<void> {
-  try {
-    const response = (await browser.runtime.sendMessage({
-      type: "permissions:audit"
-    })) as PermissionAuditResultMessage | undefined;
-
-    if (response && isPermissionAuditResult(response)) {
-      renderExtensions(response.extensions);
-    }
-  } catch (error) {
-    console.error("[SiteSense] Failed to load extension audits", error);
-  }
+  const name = formatSiteName(url);
+  siteNameEl.textContent = `Reviewing: ${name}`;
 }
 
-void requestPermissionAudit();
+function formatSiteName(url: string): string {
+  try {
+    const { hostname } = new URL(url);
+    return hostname.replace(/^www\./i, "");
+  } catch {
+    return url.replace(/^https?:\/\//i, "").split("/")[0] || "current site";
+  }
+}
 

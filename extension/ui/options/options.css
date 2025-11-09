@@ -18,10 +18,12 @@ body {
   max-width: 640px;
   margin: 0 auto;
   display: grid;
-  gap: calc(var(--spacing) * 3);
+  gap: calc(var(--spacing) * 4);
   border: 2px solid var(--color-border);
   padding: calc(var(--spacing) * 4);
   background: rgba(15, 15, 15, 0.92);
+  max-height: 540px;
+  overflow-y: auto;
 }
 
 .options__header h1 {
@@ -36,74 +38,54 @@ body {
   color: var(--color-muted);
 }
 
-.options__form {
+.options__notice {
+  color: var(--color-accent-green);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.options__analysis {
   display: grid;
   gap: calc(var(--spacing) * 2);
 }
 
-.options__form label {
+.analysis__summary {
+  display: grid;
+  gap: calc(var(--spacing));
+  font-family: var(--font-mono);
+}
+
+.analysis__summary p {
+  margin: 0;
+}
+
+.analysis__explanation {
+  margin: 0;
+  font-family: var(--font-mono);
+  color: var(--color-muted);
+  white-space: pre-wrap;
+}
+
+.analysis__grid {
+  display: grid;
+  gap: calc(var(--spacing) * 2);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.options__analysis ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-mono);
+  display: grid;
+  gap: calc(var(--spacing));
+}
+
+.options__analysis h3 {
+  margin: 0 0 calc(var(--spacing));
   text-transform: uppercase;
+  letter-spacing: 0.08em;
   font-size: 0.85rem;
-  letter-spacing: 0.08em;
-}
-
-.options__form textarea {
-  resize: vertical;
-  min-height: 120px;
-  background: transparent;
-  color: var(--color-fg);
-  border: 2px solid var(--color-border);
-  font-family: var(--font-mono);
-  padding: calc(var(--spacing) * 1.5);
-}
-
-.options__form-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: calc(var(--spacing) * 1.5);
-}
-
-.options__form button {
-  appearance: none;
-  border: 2px solid var(--color-border);
-  background: var(--color-accent-green);
-  color: var(--color-bg);
-  font-family: var(--font-mono);
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  padding: calc(var(--spacing) * 1.25) calc(var(--spacing) * 2);
-  cursor: pointer;
-  transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
-}
-
-.options__form button:hover,
-.options__form button:focus-visible {
-  transform: translateY(-1px);
-}
-
-.options__form button.ghost {
-  background: transparent;
-  color: var(--color-accent-red);
-}
-
-.options__form button.ghost:hover,
-.options__form button.ghost:focus-visible {
-  color: var(--color-fg);
-  border-color: var(--color-accent-red);
-}
-
-#form-status {
-  font-family: var(--font-mono);
-  min-height: 1.2em;
-}
-
-.status--success {
-  color: var(--color-accent-green);
-}
-
-.status--danger {
-  color: var(--color-accent-red);
 }
 
 .options__transparency {
@@ -150,5 +132,23 @@ body {
 #transparency-status {
   font-family: var(--font-mono);
   min-height: 1.2em;
+}
+
+.status--success {
+  color: var(--color-accent-green);
+}
+
+.status--danger {
+  color: var(--color-accent-red);
+}
+
+@media (max-width: 720px) {
+  .options {
+    padding: calc(var(--spacing) * 3);
+  }
+
+  .analysis__grid {
+    grid-template-columns: 1fr;
+  }
 }
 

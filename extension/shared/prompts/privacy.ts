@@ -3,20 +3,30 @@ export interface PrivacyPromptInput {
   content: string;
 }
 
+export type MessageContent =
+  | {
+      type: "input_text";
+      text: string;
+    };
+
+export interface PromptMessage {
+  role: "system" | "user";
+  content: MessageContent[];
+}
+
+export interface JsonSchemaFormatConfig {
+  type: "json_schema";
+  name: string;
+  schema: Record<string, unknown>;
+  strict?: boolean;
+}
+
 export interface PrivacyPromptPayload {
   model: string;
-  input: {
-    instructions: string;
-    policy_excerpt: string;
-    url: string;
-    response_schema: {
-      type: "json_schema";
-      json_schema: {
-        name: string;
-        schema: Record<string, unknown>;
-      };
-    };
+  text: {
+    format: JsonSchemaFormatConfig;
   };
+  input: PromptMessage[];
 }
 
 const BASE_INSTRUCTIONS = [
@@ -27,7 +37,7 @@ const BASE_INSTRUCTIONS = [
 
 const RESPONSE_SCHEMA = {
   type: "object",
-  required: ["summary", "score", "positives", "risks", "citations"],
+  required: ["summary", "score", "positives", "risks"],
   properties: {
     summary: {
       type: "string",
@@ -53,6 +63,48 @@ const RESPONSE_SCHEMA = {
       },
       description: "Key risks or missing information."
     },
+    score_explanation: {
+      type: "string",
+      description: "Reasoning that justifies the assigned score."
+    },
+    positive_details: {
+      type: "array",
+      items: {
+        type: "object",
+        required: ["reason"],
+        properties: {
+          positive: {
+            type: "string",
+            description: "The positive finding being elaborated."
+          },
+          reason: {
+            type: "string",
+            description: "Explanation supporting the positive finding."
+          }
+        },
+        additionalProperties: false
+      },
+      description: "Detailed explanations for each positive finding."
+    },
+    risk_details: {
+      type: "array",
+      items: {
+        type: "object",
+        required: ["reason"],
+        properties: {
+          risk: {
+            type: "string",
+            description: "The risk that is being described."
+          },
+          reason: {
+            type: "string",
+            description: "Explanation supporting the identified risk."
+          }
+        },
+        additionalProperties: false
+      },
+      description: "Detailed explanations for each risk."
+    },
     citations: {
       type: "array",
       items: {
@@ -61,35 +113,60 @@ const RESPONSE_SCHEMA = {
         properties: {
           quote: {
             type: "string",
-            description: "Direct excerpt from the policy."
+            description: "Direct evidence from the policy that supports the finding."
           },
           reason: {
             type: "string",
-            description: "Why this excerpt matters to the score."
+            description: "Explanation of how the quote supports the finding."
           }
-        }
+        },
+        additionalProperties: false
       },
-      description: "Evidence references backing the summary."
+      description: "Supporting evidence drawn from the policy text."
     }
   },
   additionalProperties: false
 };
 
 export function buildPrivacyPrompt(input: PrivacyPromptInput): PrivacyPromptPayload {
+  const userText = [
+    `Analyze the following website privacy information.`,
+    `URL: ${input.url}`,
+    ``,
+    `Policy Excerpt:`,
+    input.content
+  ].join("\n");
+
   return {
     model: "gpt-4.1-mini",
-    input: {
-      instructions: BASE_INSTRUCTIONS,
-      url: input.url,
-      policy_excerpt: input.content,
-      response_schema: {
+    text: {
+      format: {
         type: "json_schema",
-        json_schema: {
-          name: "sitesense_privacy_report",
-          schema: RESPONSE_SCHEMA
-        }
+        name: "sitesense_privacy_report",
+        schema: RESPONSE_SCHEMA,
+        strict: true
       }
-    }
+    },
+    input: [
+      {
+        role: "system",
+        content: [
+          {
+            type: "input_text",
+            text: BASE_INSTRUCTIONS
+          }
+        ]
+      },
+      {
+        role: "user",
+        content: [
+          {
+            type: "input_text",
+            text: userText
+          }
+        ]
+      }
+    ]
   };
 }
 

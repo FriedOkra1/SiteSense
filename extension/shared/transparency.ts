@@ -5,6 +5,16 @@ export type TransparencyEvent =
       payload: unknown;
     }
   | {
+      type: "analysis";
+      timestamp: number;
+      payload: unknown;
+    }
+  | {
+      type: "extension-audit";
+      timestamp: number;
+      payload: unknown;
+    }
+  | {
       type: "response";
       timestamp: number;
       payload: unknown;
@@ -23,6 +33,22 @@ export class TransparencySession {
   logPrompt(payload: unknown): void {
     this.events.push({
       type: "prompt",
+      timestamp: Date.now(),
+      payload
+    });
+  }
+
+  logAnalysis(payload: unknown): void {
+    this.events.push({
+      type: "analysis",
+      timestamp: Date.now(),
+      payload
+    });
+  }
+
+  logExtensionAudit(payload: unknown): void {
+    this.events.push({
+      type: "extension-audit",
       timestamp: Date.now(),
       payload
     });
