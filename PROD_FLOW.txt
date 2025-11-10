@@ -1,20 +1,18 @@
 SiteSense Production Flow (Intended)
 ====================================
 
+
+collection, sharing, retention, user controls, transparency, plus supporting dimensions like security and accountability.
+
+
+
 1. Overview
 -----------
 - SiteSense is a browser extension that evaluates the privacy posture of any visited website and the installed extensions on the local browser profile.
 - The production architecture pairs local extraction and guardrail logic with a Vercel-hosted privacy analysis API backed by Claude. Only sanitized policy excerpts leave the device; no user identifiers, browsing history, or telemetry are transmitted.
 - Results are rendered in the popup UI and logged in an in-memory transparency ledger so every inference is auditable and exportable.
 
-2. Tech Stack
--------------
-- Browser extension: TypeScript WebExtension targeting Chrome & Firefox, built with Vite and `@samrum/vite-plugin-web-extension`.
-- Tooling: Node.js 18+, npm 9+, Vitest with Happy DOM for testing, and TypeScript type-checking via `tsc`.
-- Backend: Claude (Anthropic) privacy analysis served through Vercel serverless functions with guardrail validation and schema enforcement.
-- Landing site: Astro application deployed on Vercel with the `@astrojs/vercel` adapter.
-
-3. End-to-End Flow
+2. End-to-End Flow
 ------------------
 1. **Detection & Extraction (Client, content script)**
    - The content script listens for navigation events. When a page loads, it inspects the DOM for policy-like text (length threshold with keywords such as “privacy,” “collection,” “retention,” etc.).
@@ -35,25 +33,25 @@ SiteSense Production Flow (Intended)
    - If validation fails, the server retries with fallback instructions; repeated failures return a descriptive error and incident code to the extension while logging the event server-side.
 7. **Result Delivery (Server → Client)**
    - The validated payload plus calibration metadata are returned to the extension.
-   - The background worker logs the response, updates the transparency session, runs the extension-permission audit (see Section 8), and broadcasts a `policy:scan-result` message to the popup/options UIs.
+   - The background worker logs the response, updates the transparency session, runs the extension-permission audit (see Section 7), and broadcasts a `policy:scan-result` message to the popup/options UIs.
 8. **User Presentation (Client UI)**
    - The popup renders the score, summary, strengths, risks, rationales, citations, and a “How this score was generated” transparency view that mirrors the transparency ledger entry.
    - The options page keeps the latest snapshot, offers filters, and exposes a one-click JSON export of all transparency sessions.
 
-4. API Integration
+3. API Integration
 ------------------
 - **Endpoint:** A Vercel serverless function (Edge-ready) that authenticates requests with API keys stored in environment variables (`CLAUDE_API_KEY`).
 - **Request Payload:** An object containing the sanitized excerpt, target URL, and the prompt structure defined in `buildPrivacyPrompt` (`shared/prompts/privacy.ts`). The payload enforces `text.format = json_schema` to compel Claude to follow the schema.
 - **Response Contract:** The server expects Claude to return `summary`, `score` (floats 0–1), `positives`, `risks`, `score_explanation`, `positive_details`, `risk_details`, and `citations`. Additional metadata (model latency, guardrail status, calibration tier) is appended server-side before the result is relayed to the extension.
 - **Error Handling:** Guardrail breaches, schema mismatches, or Claude-side failures surface structured error objects with an incident code. The extension logs these as `error` events and informs the user to check the transparency export.
 
-5. Scoring & Calibration
+4. Scoring & Calibration
 ------------------------
 - Claude returns a normalized privacy score between 0 and 1; the server maps it to a percentile-like band (e.g., 55–95) to maintain realistic spread in the MVP.
 - Calibration references historical site baselines and enforces deterministic rounding so repeated scans of the same policy produce identical scores unless Claude’s rationale materially differs.
 - The client UI maps the score to visual states (color, badge) and attaches the Claude-provided `score_explanation` to clarify the rating logic.
 
-6. Guardrails & Audit Controls
+5. Guardrails & Audit Controls
 ------------------------------
 - **Prompt Sanitization:** Multi-stage filters eliminate disallowed vocabulary, detect jailbreak instructions, and rewrite ambiguous phrasing before the request leaves the device.
 - **Inference Validation:** The server validates Claude’s JSON against the schema, ensuring every field is present and typed correctly. Failed validations trigger retries with stricter instructions; persistent issues log an incident and block the response.
@@ -61,26 +59,26 @@ SiteSense Production Flow (Intended)
 - **Rate Limiting & Anomaly Detection:** The backend enforces per-origin quotas and monitors unusual patterns (e.g., many unique URLs per minute) to mitigate automated attacks.
 - **Recovery Paths:** Feature flags allow operators to pause outbound analysis, switch to maintenance messaging, or roll back to a safe configuration without losing the transparency ledger.
 
-7. Transparency & Exportability
+6. Transparency & Exportability
 -------------------------------
 - Every session generates a deterministic `sessionId` (`<url>::timestamp`) and a `TransparencySession` object that logs the sanitized prompt, analysis payload, extension audit, and response metadata.
 - The popup’s transparency view and the options page allow users to inspect each event chronologically.
 - Users can export the transparency ledger as JSON (`transparency:export` message) for audits, compliance reporting, or incident review.
 - Exported data includes the sanitized prompt, Claude output, score, rationales, citations, guardrail notes, and any errors encountered.
 
-8. Extension Permission Audit
+7. Extension Permission Audit
 -----------------------------
 - Parallel to policy analysis, the background worker enumerates other installed extensions (excluding SiteSense itself) via the WebExtension Management API.
 - Permissions are evaluated with deterministic rules defined in `shared/rules/permissions.ts`, assigning severity, rationale, and a normalized risk score.
 - Audit results are logged into the same transparency session and surfaced beside the privacy score so teams can assess local extension risk alongside site posture.
 
-9. Failure Handling & Recovery
+8. Failure Handling & Recovery
 ------------------------------
 - If the API call fails (network issues, guardrail blocks, schema errors), the background worker logs an `error` event, notifies the UI, and preserves the failed state in the transparency ledger.
 - Users see actionable guidance (e.g., “Claude analysis failed. Check transparency log for details.”) and can export the log for debugging.
 - Server-side alerts (from honeypots, rate-limit triggers, or repeated validation failures) prompt operators to engage feature flags, rotate keys, or adjust guardrails. The transparency ledger plus server logs provide the forensic trail for recovery.
 
-10. Deployment & Data Boundaries
+9. Deployment & Data Boundaries
 -------------------------------
 - **Client:** WebExtension codebase (Chrome, Firefox parity) built from the `extension/` workspace.
 - **Server:** Vercel-hosted API, managed via environment variables and CI/CD. No persistent database is required for the MVP; session state is ephemerally captured in the extension.
