@@ -3,6 +3,8 @@ SiteSense
 
 SiteSense is a browser extension that evaluates the privacy policies of websites and the permission requests of installed browser extensions. It provides transparent, explainable privacy ratings using Claude-powered analysis while collecting and storing no user data.
 
+Visit landing page at your-site-sense.vercel.app
+
 Features
 --------
 
